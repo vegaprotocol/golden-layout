@@ -609,7 +609,8 @@ export default class LayoutManager extends EventEmitter {
      *
      * @returns {void}
      */
-    removeDragSource(dragSource) {
+    removeDragSource(dragSourceElement) {
+        const dragSource = $(dragSourceElement);
         dragSource.destroy();
         removeFromArray(dragSource, this._dragSources);
     }

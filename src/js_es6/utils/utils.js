@@ -202,3 +202,60 @@ export function filterXss(input, keepTags) {
 export function stripTags(input) {
     return $.trim(input.replace(/(<([^>]+)>)/ig, ''));
 }
+
+/**
+ * Replacement for JQuery $.extend(true, target, obj)
+ */
+ export function deepExtend(target, obj) {
+    if (obj !== undefined) {
+        for (const key in obj) {
+            if (obj.hasOwnProperty(key)) {
+                const value = obj[key];
+                const existingTarget = target[key];
+                target[key] = deepExtendValue(existingTarget, value);
+            }
+        }
+    }
+
+    return target;
+}
+
+export function deepExtendValue(existingTarget, value) {
+    if (typeof value !== 'object') {
+        return value;
+    } else {
+        if (Array.isArray(value)) {
+            const length = value.length;
+            const targetArray = new Array(length);
+            for (let i = 0; i < length; i++) {
+                const element = value[i];
+                targetArray[i] = deepExtendValue({}, element);
+            }
+            return targetArray;
+        } else {
+            if (value === null) {
+                return null;
+            } else {
+                const valueObj = value;
+                if (existingTarget === undefined) {
+                    return deepExtend({}, valueObj); // overwrite
+                } else {
+                    if (typeof existingTarget !== 'object') {
+                        return deepExtend({}, valueObj); // overwrite
+                    } else {
+                        if (Array.isArray(existingTarget)) {
+                            return deepExtend({}, valueObj); // overwrite
+                        } else {
+                            if (existingTarget === null) {
+                                return deepExtend({}, valueObj); // overwrite
+                            } else {
+                                const existingTargetObj = existingTarget;
+                                return deepExtend(existingTargetObj, valueObj); // merge
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

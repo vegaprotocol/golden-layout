@@ -154,7 +154,15 @@ export default class ItemContainer extends EventEmitter {
      * @returns {void}
      */
     extendState(state) {
-        var extendedState = deepExtend(this.getState(), state);
+        var extendedState;
+        var currentState = this.getState();
+
+        if (currentState === undefined) {
+            extendedState = state;
+        } else {
+            extendedState = deepExtend(currentState, state);
+        }
+
         this.setState(extendedState);
     }
 

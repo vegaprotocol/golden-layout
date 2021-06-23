@@ -1,9 +1,9 @@
-import EventEmitter from '../utils/EventEmitter'
-import $ from 'jquery'
+import EventEmitter from "../utils/EventEmitter";
+import $ from "jquery";
+import { deepExtend } from "../utils/utils";
 
 export default class ItemContainer extends EventEmitter {
     constructor(config, parent, layoutManager) {
-
         super();
 
         this.width = null;
@@ -14,15 +14,16 @@ export default class ItemContainer extends EventEmitter {
         this.isHidden = false;
 
         this._config = config;
-        this._element = $([
-            '<div class="lm_item_container">',
-            '<div class="lm_content"></div>',
-            '</div>'
-        ].join(''));
+        this._element = $(
+            [
+                '<div class="lm_item_container">',
+                '<div class="lm_content"></div>',
+                "</div>",
+            ].join("")
+        );
 
-        this._contentElement = this._element.find('.lm_content');
+        this._contentElement = this._element.find(".lm_content");
     }
-
 
     /**
      * Get the inner DOM element the container's content
@@ -34,7 +35,6 @@ export default class ItemContainer extends EventEmitter {
         return this._contentElement;
     }
 
-
     /**
      * Hide the container. Notifies the containers content first
      * and then hides the DOM node. If the container is already hidden
@@ -43,11 +43,10 @@ export default class ItemContainer extends EventEmitter {
      * @returns {void}
      */
     hide() {
-        this.emit('hide');
+        this.emit("hide");
         this.isHidden = true;
         this._element.hide();
     }
-
 
     /**
      * Shows a previously hidden container. Notifies the
@@ -57,15 +56,14 @@ export default class ItemContainer extends EventEmitter {
      * @returns {void}
      */
     show() {
-        this.emit('show');
+        this.emit("show");
         this.isHidden = false;
         this._element.show();
         // call shown only if the container has a valid size
         if (this.height != 0 || this.width != 0) {
-            this.emit('shown');
+            this.emit("shown");
         }
     }
-
 
     /**
      * Set the size from within the container. Traverses up
@@ -94,7 +92,6 @@ export default class ItemContainer extends EventEmitter {
             rowOrColumnChild = rowOrColumn;
             rowOrColumn = rowOrColumn.parent;
 
-
             /**
              * No row or column has been found
              */
@@ -106,9 +103,12 @@ export default class ItemContainer extends EventEmitter {
         direction = rowOrColumn.isColumn ? "height" : "width";
         newSize = direction === "height" ? height : width;
 
-        totalPixel = this[direction] * (1 / (rowOrColumnChild.config[direction] / 100));
+        totalPixel =
+            this[direction] * (1 / (rowOrColumnChild.config[direction] / 100));
         percentage = (newSize / totalPixel) * 100;
-        delta = (rowOrColumnChild.config[direction] - percentage) / (rowOrColumn.contentItems.length - 1);
+        delta =
+            (rowOrColumnChild.config[direction] - percentage) /
+            (rowOrColumn.contentItems.length - 1);
 
         for (i = 0; i < rowOrColumn.contentItems.length; i++) {
             if (rowOrColumn.contentItems[i] === rowOrColumnChild) {
@@ -118,11 +118,10 @@ export default class ItemContainer extends EventEmitter {
             }
         }
 
-        rowOrColumn.callDownwards('setSize');
+        rowOrColumn.callDownwards("setSize");
 
         return true;
     }
-
 
     /**
      * Closes the container if it is closable. Can be called by
@@ -133,11 +132,10 @@ export default class ItemContainer extends EventEmitter {
      */
     close() {
         if (this._config.isClosable) {
-            this.emit('close');
+            this.emit("close");
             this.parent.close();
         }
     }
-
 
     /**
      * Returns the current state object
@@ -148,7 +146,6 @@ export default class ItemContainer extends EventEmitter {
         return this._config.componentState;
     }
 
-
     /**
      * Merges the provided state into the current one
      *
@@ -156,11 +153,10 @@ export default class ItemContainer extends EventEmitter {
      *
      * @returns {void}
      */
-     extendState(state) {
+    extendState(state) {
         var extendedState = deepExtend(this.getState(), state);
         this.setState(extendedState);
     }
-
 
     /**
      * Notifies the layout manager of a stateupdate
@@ -169,9 +165,8 @@ export default class ItemContainer extends EventEmitter {
      */
     setState(state) {
         this._config.componentState = state;
-        this.parent.emitBubblingEvent('stateChanged');
+        this.parent.emitBubblingEvent("stateChanged");
     }
-
 
     /**
      * Set's the components title
@@ -181,7 +176,6 @@ export default class ItemContainer extends EventEmitter {
     setTitle(title) {
         this.parent.setTitle(title);
     }
-
 
     /**
      * Set's the containers size. Called by the container's component.
@@ -197,9 +191,13 @@ export default class ItemContainer extends EventEmitter {
         if (width !== this.width || height !== this.height) {
             this.width = width;
             this.height = height;
-            $.zepto ? this._contentElement.width(width) : this._contentElement.outerWidth(width);
-            $.zepto ? this._contentElement.height(height) : this._contentElement.outerHeight(height);
-            this.emit('resize');
+            $.zepto
+                ? this._contentElement.width(width)
+                : this._contentElement.outerWidth(width);
+            $.zepto
+                ? this._contentElement.height(height)
+                : this._contentElement.outerHeight(height);
+            this.emit("resize");
         }
     }
 }
